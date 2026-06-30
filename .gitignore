@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# uv
+# (uv.lock is committed; the venv is not)
+
+# tether runtime state
+*.db
+*.db-wal
+*.db-shm
+config.yaml
+data/
+
+# Logs
+*.log
+
+# Claude Code machine-local settings (per-machine permissions/paths)
+.claude/settings.local.json
+
+# OS / editor
+.DS_Store

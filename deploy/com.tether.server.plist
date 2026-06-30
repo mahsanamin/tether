@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  launchd user agent for the always-on tether server.
+
+  This file is a TEMPLATE. The placeholders __UV__, __REPO__ and __PATH__ are
+  filled in with real values when you run deploy/install.sh (it detects your uv
+  binary, this checkout's path, and your current PATH). For a manual install,
+  replace the three placeholders yourself, then:
+    cp deploy/com.tether.server.plist ~/Library/LaunchAgents/com.tether.server.plist
+    launchctl load ~/Library/LaunchAgents/com.tether.server.plist
+
+  Stop / remove:
+    launchctl unload ~/Library/LaunchAgents/com.tether.server.plist
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.tether.server</string>
+
+  <!-- tether binds 127.0.0.1 by default (loopback only, secure). On Docker
+       Desktop for Mac a reverse-proxy container still reaches it via
+       host.docker.internal:4444, so NO 0.0.0.0 bind is needed. To override,
+       add an EnvironmentVariables dict setting TETHER_HOST. Auth is gated by
+       config.yaml's auth_token; also keep an access list on any public host. -->
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>__UV__</string>
+    <string>run</string>
+    <string>tether</string>
+  </array>
+
+  <!-- launchd gives agents a bare PATH (/usr/bin:/bin:...), which hides the
+       commands in /opt/homebrew/bin and any custom command directories. The
+       installer writes your real PATH here so /api/commands can list your own
+       commands and the routine can run them. Re-run install.sh after adding a
+       new command directory to refresh it. -->
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>__PATH__</string>
+  </dict>
+
+  <key>WorkingDirectory</key>
+  <string>__REPO__</string>
+
+  <key>RunAtLoad</key>
+  <true/>
+
+  <key>KeepAlive</key>
+  <true/>
+
+  <key>StandardOutPath</key>
+  <string>__REPO__/tether.out.log</string>
+
+  <key>StandardErrorPath</key>
+  <string>__REPO__/tether.err.log</string>
+</dict>
+</plist>

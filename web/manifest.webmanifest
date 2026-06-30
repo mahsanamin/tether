@@ -1,0 +1,12 @@
+{
+  "name": "tether",
+  "short_name": "tether",
+  "description": "A private bridge to your Claude routines.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000600",
+  "theme_color": "#000600",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

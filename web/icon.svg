@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="tether">
+  <title>tether</title>
+  <!-- Mechanic / master-of-tools mark: crossed wrench and screwdriver -->
+  <defs>
+    <linearGradient id="tether-grn" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#00ff66"/>
+      <stop offset="1" stop-color="#00803a"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="#020a06"/>
+  <rect x="2" y="2" width="60" height="60" rx="12" fill="none" stroke="url(#tether-grn)" stroke-width="2"/>
+
+  <!-- Wrench: handle + open jaw, on one diagonal -->
+  <g transform="rotate(-45 32 32)" stroke="#00ff66" stroke-width="6" stroke-linecap="round" fill="none">
+    <path d="M32 46 V26"/>
+    <path d="M38 13 A 8 8 0 1 1 26 13"/>
+  </g>
+
+  <!-- Screwdriver: handle, shaft, flat tip, on the other diagonal -->
+  <g transform="rotate(45 32 32)" fill="#00ff66">
+    <rect x="27.5" y="8" width="9" height="14" rx="4.5"/>
+    <rect x="30.5" y="21" width="3" height="22"/>
+    <path d="M30.5 43 H33.5 L33 51 H31 Z"/>
+  </g>
+</svg>

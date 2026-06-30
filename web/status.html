@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>tether status</title>
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <style>
+      body {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        background: #000600;
+        color: #4dff88;
+        margin: 0;
+        padding: 20px;
+        min-height: 100vh;
+        text-shadow: 0 0 2px rgba(0, 255, 102, 0.22);
+      }
+      h1 {
+        font-size: 18px;
+        margin: 0 0 8px;
+        color: #00ff66;
+        text-shadow: 0 0 8px rgba(0, 255, 102, 0.5);
+        letter-spacing: 1px;
+      }
+      .card {
+        background: rgba(2, 22, 12, 0.82);
+        border: 1px solid #0f5a32;
+        border-radius: 8px;
+        padding: 12px;
+        margin: 10px 0;
+      }
+      .row {
+        font-size: 14px;
+        padding: 3px 0;
+      }
+      .muted {
+        color: #2f9e5f;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>tether status</h1>
+    <div id="out" class="muted">loading...</div>
+    <script type="module">
+      function el(tag, text, cls) {
+        const e = document.createElement(tag);
+        if (text != null) e.textContent = text;
+        if (cls) e.className = cls;
+        return e;
+      }
+      async function load() {
+        let s;
+        try {
+          s = await (await fetch("/api/status")).json();
+        } catch (e) {
+          return;
+        }
+        const out = document.getElementById("out");
+        out.className = "";
+        out.replaceChildren();
+
+        const routines = el("div", null, "card");
+        routines.appendChild(
+          el("h1", `Connected routines (${s.connected_routines.length})`),
+        );
+        if (!s.connected_routines.length) routines.appendChild(el("div", "none", "muted row"));
+        for (const r of s.connected_routines) {
+          routines.appendChild(
+            el("div", `${r.id}  [${(r.capabilities || []).join(", ")}]`, "row"),
+          );
+        }
+        out.appendChild(routines);
+
+        out.appendChild(el("div", `UI clients: ${s.ui_clients}`, "card"));
+
+        const tasks = el("div", null, "card");
+        tasks.appendChild(el("h1", `In-flight tasks (${s.tasks.length})`));
+        if (!s.tasks.length) tasks.appendChild(el("div", "none", "muted row"));
+        for (const t of s.tasks) {
+          tasks.appendChild(
+            el("div", `${t.state}  ·  ${t.id.slice(0, 8)}  ·  ${t.claimed_by || "-"}`, "row"),
+          );
+        }
+        out.appendChild(tasks);
+      }
+      load();
+      setInterval(load, 5000);
+    </script>
+  </body>
+</html>

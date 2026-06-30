@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>tether</title>
+    <link rel="icon" type="image/svg+xml" href="/icon.svg?v=7" />
+    <link rel="apple-touch-icon" href="/icon.svg?v=7" />
+    <link rel="manifest" href="/manifest.webmanifest?v=7" />
+    <meta name="theme-color" content="#000600" />
+    <link rel="stylesheet" href="/style.css?v=7" />
+  </head>
+  <body>
+    <canvas id="matrix" aria-hidden="true"></canvas>
+    <div id="layout">
+      <aside id="sidebar">
+        <div class="sidebar-head">
+          <img class="logo" src="/icon.svg" width="22" height="22" alt="" />
+          <span class="brand">tether</span>
+        </div>
+        <button id="new-session" class="new-btn" type="button">+ New chat</button>
+        <input id="session-search" class="search" type="text" placeholder="Search chats..." />
+        <ul id="session-list" class="session-list"></ul>
+      </aside>
+
+      <div id="scrim"></div>
+
+      <main id="main">
+        <header class="topbar">
+          <button id="menu-btn" class="icon-btn" type="button" aria-label="Chats">&#9776;</button>
+          <span id="session-title" class="brand">tether</span>
+          <span id="status-dot" class="status-dot" title="connection"></span>
+        </header>
+        <div id="messages" class="messages"></div>
+        <div id="dir-picker" class="dir-picker" hidden>
+          <div class="dir-head">
+            <input
+              id="dir-input"
+              class="dir-input"
+              type="text"
+              spellcheck="false"
+              autocomplete="off"
+              placeholder="/path/to/folder  (type or click)"
+            />
+            <button id="dir-close" class="icon-btn" type="button" aria-label="Close">&times;</button>
+          </div>
+          <ul id="dir-list" class="dir-list"></ul>
+          <div class="dir-foot">
+            <span class="dir-hint">type a path (Tab to autocomplete) or click a folder, then insert</span>
+            <button id="dir-insert" class="send-btn" type="button">Insert this folder</button>
+          </div>
+        </div>
+        <div id="cmd-picker" class="dir-picker" hidden>
+          <div class="dir-head">
+            <input
+              id="cmd-input"
+              class="dir-input"
+              type="text"
+              spellcheck="false"
+              autocomplete="off"
+              placeholder="command name  (type or click)"
+            />
+            <button id="cmd-close" class="icon-btn" type="button" aria-label="Close">&times;</button>
+          </div>
+          <ul id="cmd-list" class="dir-list"></ul>
+          <div class="dir-foot">
+            <span class="dir-hint">type a command (Tab to autocomplete) or click, then insert</span>
+            <button id="cmd-insert" class="send-btn" type="button">Insert command</button>
+          </div>
+        </div>
+        <div id="widget-builder" class="dir-picker" hidden>
+          <div class="dir-head">
+            <input
+              id="wb-name"
+              class="dir-input"
+              type="text"
+              spellcheck="false"
+              autocomplete="off"
+              placeholder="Widget name  (e.g. Deploy staging)"
+            />
+            <button id="wb-close" class="icon-btn" type="button" aria-label="Close">&times;</button>
+          </div>
+          <div class="wb-cmdrow">
+            <input
+              id="wb-cmd"
+              class="dir-input"
+              type="text"
+              spellcheck="false"
+              autocomplete="off"
+              placeholder="command  (e.g. ./deploy.sh)"
+            />
+            <button id="wb-read" class="send-btn" type="button">Read parameters</button>
+          </div>
+          <div id="wb-fields" class="wb-fields"></div>
+          <textarea
+            id="wb-full"
+            class="wb-full"
+            spellcheck="false"
+            placeholder="full command (the fields above fill this; you can edit it directly)"
+          ></textarea>
+          <div class="dir-foot">
+            <span class="dir-hint">Read parameters runs <code>&lt;command&gt; --help</code> on the host via your routine</span>
+            <button id="wb-save" class="send-btn" type="button">Save widget</button>
+          </div>
+        </div>
+        <div id="widget-run" class="dir-picker" hidden>
+          <div class="dir-head">
+            <span id="wr-title" class="brand"></span>
+            <button id="wr-close" class="icon-btn" type="button" aria-label="Close">&times;</button>
+          </div>
+          <div id="wr-fields" class="wb-fields"></div>
+          <div class="dir-foot">
+            <span id="wr-preview" class="wr-preview"></span>
+            <button id="wr-run" class="send-btn" type="button">Run</button>
+          </div>
+        </div>
+        <div id="widgets" class="widgets"></div>
+        <form id="composer" class="composer">
+          <button id="attach-btn" class="icon-btn" type="button" aria-label="Attach image">&#128206;</button>
+          <button id="mic-btn" class="icon-btn" type="button" aria-label="Voice note">&#127908;</button>
+          <input id="command" type="text" placeholder="Type a message..." autocomplete="off" />
+          <button id="stop-btn" class="send-btn stop" type="button" hidden>Stop</button>
+          <button type="submit" class="send-btn">Send</button>
+        </form>
+        <input id="file-input" type="file" accept="image/*" hidden />
+      </main>
+      <div id="modal-scrim" hidden></div>
+    </div>
+    <script type="module" src="/matrix.js?v=7"></script>
+    <script type="module" src="/app.js?v=7"></script>
+  </body>
+</html>

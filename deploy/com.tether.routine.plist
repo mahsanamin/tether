@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  launchd user agent for the always-on shell routine (the command runner). This
+  is what makes commands typed in the chat actually run, so it must outlive any
+  terminal / Claude Code session that started it.
+
+  It needs no token in this file: the routine reads config.yaml's auth_token when
+  TETHER_TOKEN is unset (config.yaml is gitignored; this plist is committed).
+
+  This file is a TEMPLATE. The placeholders __UV__, __REPO__ and __PATH__ are
+  filled in with real values when you run deploy/install.sh. For a manual install,
+  replace the three placeholders yourself, then:
+    cp deploy/com.tether.routine.plist ~/Library/LaunchAgents/com.tether.routine.plist
+    launchctl load ~/Library/LaunchAgents/com.tether.routine.plist
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.tether.routine</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>__UV__</string>
+    <string>run</string>
+    <string>python</string>
+    <string>routines/shell_routine.py</string>
+  </array>
+
+  <!-- Real PATH so the routine can find and run your own commands; launchd's bare
+       PATH would hide /opt/homebrew/bin and any custom command directories. Kept
+       in sync with com.tether.server.plist by the installer. -->
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>__PATH__</string>
+  </dict>
+
+  <key>WorkingDirectory</key>
+  <string>__REPO__</string>
+
+  <key>RunAtLoad</key>
+  <true/>
+
+  <!-- KeepAlive restarts the routine if it ever exits; the routine also
+       reconnects on its own when the server bounces, so this is just a backstop.
+       ThrottleInterval avoids a tight restart loop while the server is starting. -->
+  <key>KeepAlive</key>
+  <true/>
+
+  <key>ThrottleInterval</key>
+  <integer>5</integer>
+
+  <key>StandardOutPath</key>
+  <string>__REPO__/routine.out.log</string>
+
+  <key>StandardErrorPath</key>
+  <string>__REPO__/routine.err.log</string>
+</dict>
+</plist>

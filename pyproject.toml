@@ -1,0 +1,51 @@
+[project]
+name = "tether"
+version = "0.0.1"
+description = "A private, always-on web command box that brokers commands to local Claude routines."
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "aiosqlite>=0.20",
+    "pyyaml>=6.0",
+    "websockets>=12",
+    "python-multipart>=0.0.9",
+    "faster-whisper>=1.2.1",
+]
+
+[project.scripts]
+tether = "server.main:run"
+tether-connect = "cli.tether_connect:main"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.6",
+    "pytest>=8.0",
+    "httpx>=0.27",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["server", "cli"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.ruff.lint.flake8-bugbear]
+extend-immutable-calls = [
+    "fastapi.Query",
+    "fastapi.File",
+    "fastapi.Form",
+    "fastapi.Depends",
+    "fastapi.Path",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

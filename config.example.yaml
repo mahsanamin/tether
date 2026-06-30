@@ -1,0 +1,24 @@
+# tether configuration. Copy to config.yaml and edit. config.yaml is gitignored.
+# Wired up across tasks (see task-sequence.md):
+#   server.auth_token -> M7 (auth)
+#   uploads.*         -> M3 (image uploads) / M4 (voice notes)
+#   voice.*           -> M4 (voice notes)
+# tether runs NO LLM. It only stores and streams messages + media to routines.
+
+server:
+  bind: 127.0.0.1            # loopback; reach it via Tailscale or a reverse proxy
+  port: 4444
+  # Auth toggle. Empty or "change-me" = OFF (open): correct when access is already
+  # restricted to a trusted network (Tailscale tailnet, or an NPM Access List).
+  # Set a real shared token ONLY if tether is reachable beyond that, since anyone
+  # who can reach it can run commands on this machine. Also settable via
+  # TETHER_AUTH_TOKEN; routines read the same token automatically.
+  auth_token: ""
+
+uploads:
+  dir: "./data/attachments"  # images and voice notes stored at real host paths
+  max_mb: 25
+
+voice:
+  provider: "browser"        # browser (client-side STT, no server model) | whisper | none
+  whisper_url: "http://127.0.0.1:9000"   # used only when provider = whisper

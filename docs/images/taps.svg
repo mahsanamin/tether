@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="420" height="820" viewBox="0 0 420 820" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">
+  <defs>
+    <clipPath id="screen2"><rect x="3" y="3" width="414" height="814" rx="40"/></clipPath>
+    <linearGradient id="sendg2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#9dffc4"/>
+      <stop offset="1" stop-color="#00ff66"/>
+    </linearGradient>
+    <filter id="glow2" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="2.4" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <pattern id="scan2" width="4" height="4" patternUnits="userSpaceOnUse">
+      <rect width="4" height="1" y="3" fill="#000000" opacity="0.20"/>
+    </pattern>
+  </defs>
+
+  <rect x="3" y="3" width="414" height="814" rx="40" fill="#000600" stroke="#0f5a32" stroke-width="2"/>
+
+  <g clip-path="url(#screen2)">
+    <!-- faint chat backdrop -->
+    <g opacity="0.5">
+      <line x1="16" y1="64" x2="404" y2="64" stroke="#0f5a32" stroke-width="1.5"/>
+      <text x="210" y="39" text-anchor="middle" fill="#00ff66" font-size="17" font-weight="700" letter-spacing="1.5">tether</text>
+      <circle cx="392" cy="34" r="5.5" fill="#00ff66"/>
+      <rect x="150" y="104" width="254" height="36" rx="14" fill="#00b347"/>
+      <rect x="16" y="160" width="240" height="34" rx="14" fill="#04140c" stroke="#0f5a32"/>
+      <!-- widget row, "Deploy staging" highlighted (being tapped) -->
+      <rect x="16"  y="664" width="126" height="30" rx="15" fill="#0b4a2a" stroke="#00ff66"/>
+      <text x="79"  y="684" text-anchor="middle" fill="#9dffc4" font-size="12">Deploy staging</text>
+      <rect x="150" y="664" width="92"  height="30" rx="15" fill="#072c19" stroke="#0f5a32"/>
+      <text x="196" y="684" text-anchor="middle" fill="#4dff88" font-size="12">Run tests</text>
+      <rect x="250" y="664" width="120" height="30" rx="15" fill="#072c19" stroke="#0f5a32"/>
+      <text x="310" y="684" text-anchor="middle" fill="#4dff88" font-size="12">Morning brief</text>
+    </g>
+    <!-- tap ripple on the highlighted widget -->
+    <circle cx="79" cy="679" r="20" fill="none" stroke="#00ff66" stroke-width="2" opacity="0.55"/>
+    <circle cx="79" cy="679" r="30" fill="none" stroke="#00ff66" stroke-width="1.2" opacity="0.28"/>
+
+    <!-- dim scrim -->
+    <rect x="3" y="3" width="414" height="814" fill="#000000" opacity="0.62"/>
+
+    <!-- run dialog modal -->
+    <rect x="24" y="238" width="372" height="352" rx="14" fill="#07120c" stroke="#00ff66" stroke-width="1.5"/>
+
+    <!-- header -->
+    <text x="44" y="278" fill="#00ff66" font-size="16" font-weight="700" letter-spacing="0.5" filter="url(#glow2)">Deploy staging</text>
+    <text x="372" y="280" text-anchor="end" fill="#2f9e5f" font-size="18">×</text>
+    <line x1="40" y1="294" x2="380" y2="294" stroke="#0f5a32" stroke-width="1"/>
+
+    <!-- field 1 -->
+    <text x="44" y="322" fill="#2f9e5f" font-size="12">environment</text>
+    <rect x="44" y="330" width="312" height="36" rx="7" fill="#021610" stroke="#0f5a32"/>
+    <text x="58" y="353" fill="#4dff88" font-size="13.5">staging</text>
+
+    <!-- field 2 (ask-on-click) -->
+    <text x="44" y="392" fill="#2f9e5f" font-size="12">ticket  <tspan fill="#2f9e5f">(asked each tap)</tspan></text>
+    <rect x="44" y="400" width="312" height="36" rx="7" fill="#021610" stroke="#00ff66" stroke-opacity="0.6"/>
+    <text x="58" y="423" fill="#2f9e5f" font-size="13.5">e.g. 1024</text>
+
+    <line x1="40" y1="470" x2="380" y2="470" stroke="#0f5a32" stroke-width="1"/>
+
+    <!-- preview + run -->
+    <text x="44" y="512" fill="#2f9e5f" font-size="11">will send:</text>
+    <text x="44" y="532" fill="#4dff88" font-size="11.5">./deploy.sh staging --ticket 1024</text>
+    <rect x="288" y="540" width="92" height="40" rx="9" fill="url(#sendg2)"/>
+    <text x="334" y="566" text-anchor="middle" fill="#00140a" font-size="14" font-weight="700">Run</text>
+
+    <rect x="3" y="3" width="414" height="814" fill="url(#scan2)"/>
+  </g>
+</svg>
