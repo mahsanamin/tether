@@ -47,8 +47,13 @@ def _resolve_token() -> str:
 TOKEN = _resolve_token()
 
 
-async def next_task(url: str = DEFAULT_URL, name: str = "routine") -> dict:
-    """Register, wait for a task, claim it, return its payload."""
+async def next_task(
+    url: str = DEFAULT_URL, name: str = "routine", commands: list | None = None
+) -> dict:
+    """Register, wait for a task, claim it, return its payload. `commands` is an
+    optional list of command names this routine can run, surfaced in the /c
+    picker (tether just serves it; the routine is what executed the shell to
+    gather it)."""
     async with websockets.connect(url) as ws:
         await ws.send(
             json.dumps(
@@ -58,6 +63,7 @@ async def next_task(url: str = DEFAULT_URL, name: str = "routine") -> dict:
                         "routine_id": name,
                         "name": name,
                         "capabilities": [],
+                        "commands": commands or [],
                         "token": TOKEN,
                     },
                 }

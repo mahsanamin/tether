@@ -33,6 +33,28 @@ MAX_OUTPUT = 4000
 GRACE_S = 10  # wait this long for output before treating it as a background session
 
 
+def list_commands() -> list[str]:
+    """The command surface this routine can run: executable files on PATH plus the
+    user's shell functions and aliases. Gathered once at startup (via zsh, which
+    this routine is allowed to do) and reported to the server for the /c picker, so
+    function-only commands like aa_g_worktree_list show up too, not just files."""
+    try:
+        out = subprocess.run(
+            [
+                "/bin/zsh",
+                "-ic",
+                "print -rl -- ${(k)commands} ${(k)functions} ${(k)aliases}",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=20,
+        ).stdout
+    except Exception:  # noqa: BLE001
+        return []
+    # drop internal (leading-underscore) helpers; dedupe + sort
+    return sorted({n for n in out.split() if n and not n.startswith("_")})
+
+
 def _drain_master(master: int) -> None:
     try:
         while os.read(master, 4096):
@@ -50,9 +72,12 @@ def run_in_pty(command: str, force_detach: bool) -> dict:
     """Run `command` with a real TTY. Capture output until it exits or GRACE_S
     passes; if still running, leave it in the background (it persists) and say so."""
     master, slave = os.openpty()
+    # Run through an interactive zsh (`zsh -i -c`) so the user's shell functions
+    # and aliases resolve, not just executable files. Plenty of commands the user
+    # runs (e.g. aa_g_worktree_list) are zsh functions from their .zshrc; a plain
+    # `sh -c` could never find them. Sourcing .zshrc adds no stdout noise (verified).
     proc = subprocess.Popen(
-        command,
-        shell=True,
+        ["/bin/zsh", "-i", "-c", command],
         stdin=slave,
         stdout=slave,
         stderr=slave,
@@ -157,10 +182,14 @@ async def run_one(url: str, task: dict, prefix: str) -> None:
 
 async def main(url: str, prefix: str) -> None:
     note = f" (only messages starting with {prefix!r})" if prefix else ""
-    print(f"shell routine on {url}; each message runs as a command{note}.")
+    commands = list_commands()
+    print(
+        f"shell routine on {url}; each message runs as a command{note}. "
+        f"reported {len(commands)} commands for the /c picker."
+    )
     while True:
         try:
-            task = await next_task(url, name="shell")
+            task = await next_task(url, name="shell", commands=commands)
             await run_one(url, task, prefix)
         except asyncio.CancelledError:
             raise

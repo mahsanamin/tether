@@ -23,7 +23,7 @@ informational.
 
 | type | payload | meaning |
 |---|---|---|
-| `register` | `{ routine_id, name, capabilities[] }` | announce yourself; you then receive task pushes and a replay of any waiting tasks |
+| `register` | `{ routine_id, name, capabilities[], commands[]? }` | announce yourself; you then receive task pushes and a replay of any waiting tasks. Optional `commands[]` is a list of command names you can run (files + shell functions + aliases), shown in the `/c` picker |
 | `claim` | `{ task_id }` | take ownership of a task |
 | `reply` | `{ task_id, content }` | send a reply into the task's session (may be sent more than once to stream) |
 | `status` | `{ task_id, state }` | `state` is `completed` or `failed` (add `reason` on failure; it shows in the chat) |

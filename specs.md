@@ -203,7 +203,7 @@ Every frame is JSON:
 
 | type | payload | meaning |
 |---|---|---|
-| `register` | `{ token, routine_id, name, capabilities[] }` | announce identity and what it can do |
+| `register` | `{ token, routine_id, name, capabilities[], commands[]? }` | announce identity and what it can do; optional `commands[]` is the command surface it can run (files + shell functions + aliases), served to the `/c` picker |
 | `claim` | `{ task_id }` | take ownership of a ready task |
 | `reply` | `{ task_id, session_id, content, final? }` | send a result chunk or final answer |
 | `status` | `{ task_id, state }` | report `running` / `completed` / `failed` |

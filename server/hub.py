@@ -32,6 +32,12 @@ class Hub:
         self.routines: dict[str, WebSocket] = {}  # routine_id -> socket
         self.routine_ids: dict[WebSocket, str] = {}  # socket -> routine_id
         self.caps: dict[str, list] = {}  # routine_id -> capabilities
+        # Command names a routine reports it can run (files + shell functions +
+        # aliases). tether never runs a shell to find these; the routine sends
+        # them, tether only serves them to the /c picker. Empty until a routine
+        # that supplies them registers (then /api/commands falls back to a PATH
+        # scan). See the register handler and /api/commands.
+        self.routine_commands: list[str] = []
         self.claim_timeout = int(os.environ.get("TETHER_CLAIM_TIMEOUT", "300"))
         self.auth_token = ""  # set by main; default/empty means open access
         self.voice_provider = "browser"  # set by main from config
@@ -296,6 +302,9 @@ class Hub:
             self.routines[rid] = ws
             self.routine_ids[ws] = rid
             self.caps[rid] = caps
+            cmds = payload.get("commands")  # full command surface for the /c picker
+            if cmds:
+                self.routine_commands = cmds
             # Send registered FIRST, before any awaiting db call, so a concurrent
             # user_message dispatch cannot slip a task_available ahead of it.
             await self._send(

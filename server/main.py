@@ -229,16 +229,21 @@ def _scan_path_commands() -> list[str]:
 
 @app.get("/api/commands")
 async def list_commands(request: Request, q: str | None = Query(default=None)):
-    """List executable command names on the host PATH so the UI can pick one.
-    Cached for 60s. Token-gated when auth is enabled."""
+    """Command names for the /c picker. Prefers the list the connected routine
+    reported (executable files + shell functions + aliases, the full surface it
+    can actually run); falls back to a PATH-file scan (cached 60s) when no routine
+    has supplied one. tether never runs a shell to build this. Token-gated when
+    auth is enabled."""
     if config_mod.auth_required(AUTH_TOKEN):
         if request.headers.get("x-tether-token") != AUTH_TOKEN:
             return JSONResponse({"error": "unauthorized"}, status_code=403)
-    now = time.monotonic()
-    if not _cmd_cache["cmds"] or now - _cmd_cache["ts"] > 60:
-        _cmd_cache["cmds"] = await asyncio.to_thread(_scan_path_commands)
-        _cmd_cache["ts"] = now
-    cmds = _cmd_cache["cmds"]
+    cmds = hub.routine_commands
+    if not cmds:
+        now = time.monotonic()
+        if not _cmd_cache["cmds"] or now - _cmd_cache["ts"] > 60:
+            _cmd_cache["cmds"] = await asyncio.to_thread(_scan_path_commands)
+            _cmd_cache["ts"] = now
+        cmds = _cmd_cache["cmds"]
     if q:
         ql = q.lower()
         cmds = [c for c in cmds if c.lower().startswith(ql)]
