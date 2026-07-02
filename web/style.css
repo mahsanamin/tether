@@ -651,6 +651,17 @@ textarea:focus {
   color: var(--muted);
 }
 
+.wb-field .req-star {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+/* a required field left empty when Run is pressed */
+.wb-field input.invalid {
+  border-color: var(--danger) !important;
+  box-shadow: 0 0 0 3px rgba(244, 114, 114, 0.18);
+}
+
 .wb-field input[type="text"] {
   padding: var(--sp-2) 10px;
   border: 1px solid var(--border);

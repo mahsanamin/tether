@@ -93,8 +93,10 @@ def _rest_authed(request: Request) -> bool:
 
 def _clean_params(raw) -> list:
     """Sanitize a widget's ask-on-click param spec. Each entry is a plain
-    {key, label, default} of strings; the key matches a {{key}} placeholder in
-    the command. tether only stores this; the client fills and substitutes it."""
+    {key, label, default, required} of simple values; the key matches a {{key}}
+    placeholder in the command. `required` (default False) makes the client refuse
+    to run until the field is filled. tether only stores this; the client fills,
+    validates, and substitutes it."""
     out = []
     seen = set()
     for item in raw if isinstance(raw, list) else []:
@@ -109,6 +111,7 @@ def _clean_params(raw) -> list:
                 "key": key,
                 "label": str(item.get("label", key))[:80],
                 "default": str(item.get("default", ""))[:2000],
+                "required": bool(item.get("required", False)),
             }
         )
     return out

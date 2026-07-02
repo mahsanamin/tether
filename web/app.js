@@ -808,11 +808,21 @@ function openRunDialog(widget) {
     const label = document.createElement("span");
     label.className = "wb-label";
     label.append(...codeLabel(p.label || p.key));
+    if (p.required) {
+      const star = document.createElement("span");
+      star.className = "req-star";
+      star.textContent = " *";
+      star.title = "required";
+      label.appendChild(star);
+    }
     const inp = document.createElement("input");
     inp.type = "text";
     inp.value = p.default || "";
-    inp.placeholder = p.label || p.key;
-    inp.addEventListener("input", updateRunPreview);
+    inp.placeholder = (p.label || p.key) + (p.required ? "  (required)" : "");
+    inp.addEventListener("input", () => {
+      inp.classList.remove("invalid");
+      updateRunPreview();
+    });
     inp.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         e.preventDefault();
@@ -835,8 +845,27 @@ function closeRunDialog() {
   if (wbPanel.hidden) modalScrim.hidden = true;
 }
 
+// A required field left empty blocks the run: mark it, focus the first offender.
+function validateRun() {
+  let firstBad = null;
+  for (const p of (wrWidget && wrWidget.params) || []) {
+    if (!p.required) continue;
+    const inp = wrInputs[p.key];
+    if (inp && !inp.value.trim()) {
+      inp.classList.add("invalid");
+      if (!firstBad) firstBad = inp;
+    }
+  }
+  if (firstBad) {
+    firstBad.focus();
+    return false;
+  }
+  return true;
+}
+
 function runFilled() {
   if (!wrWidget) return;
+  if (!validateRun()) return;
   sendWidget(wrPreview.textContent);
   closeRunDialog();
 }
