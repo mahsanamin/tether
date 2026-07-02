@@ -24,15 +24,15 @@ if (canvas && canvas.getContext) {
 
   function draw() {
     // translucent black wash leaves fading tails behind each falling glyph
-    ctx.fillStyle = "rgba(0, 6, 0, 0.09)";
+    ctx.fillStyle = "rgba(6, 10, 8, 0.09)";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.font = `${FONT}px ui-monospace, SFMono-Regular, Menlo, monospace`;
     for (let i = 0; i < cols; i++) {
       const ch = GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
       const x = i * FONT;
       const y = drops[i] * FONT;
-      // a bright "head" now and then, dim green for the rest of the stream
-      ctx.fillStyle = Math.random() > 0.94 ? "#d6ffe6" : "#00ff66";
+      // a bright "head" now and then, the accent green for the rest of the stream
+      ctx.fillStyle = Math.random() > 0.94 ? "#a9ffce" : "#33e685";
       ctx.fillText(ch, x, y);
       if (y > canvas.height && Math.random() > 0.975) drops[i] = 0;
       drops[i] += speeds[i];
