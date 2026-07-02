@@ -25,6 +25,8 @@ const cmdList = document.getElementById("cmd-list");
 const cmdInsert = document.getElementById("cmd-insert");
 const cmdClose = document.getElementById("cmd-close");
 const widgetsEl = document.getElementById("widgets");
+const widgetAdd = document.getElementById("widget-add");
+const wbCmdList = document.getElementById("wb-cmd-list");
 const wbPanel = document.getElementById("widget-builder");
 const wbName = document.getElementById("wb-name");
 const wbCmd = document.getElementById("wb-cmd");
@@ -416,12 +418,7 @@ function renderWidgets() {
     btn.addEventListener("click", () => runWidget(w));
     widgetsEl.appendChild(btn);
   }
-  const add = document.createElement("button");
-  add.type = "button";
-  add.className = "widget widget-add";
-  add.textContent = "+ widget";
-  add.addEventListener("click", () => openBuilder(null));
-  widgetsEl.appendChild(add);
+  // the "+ Add" button is static markup (pinned, always visible), wired below.
 }
 
 renderWidgets();
@@ -444,10 +441,25 @@ function shQuote(v) {
   return "'" + v.replace(/'/g, "'\\''") + "'";
 }
 
+// Fill the command box's autocomplete with the available commands (same list as
+// /c). Built once, lazily, so the add form suggests your commands as you type.
+async function populateCmdDatalist() {
+  if (!wbCmdList || wbCmdList.childElementCount) return;
+  const cmds = await loadCommands();
+  const frag = document.createDocumentFragment();
+  for (const c of cmds) {
+    const o = document.createElement("option");
+    o.value = c;
+    frag.appendChild(o);
+  }
+  wbCmdList.replaceChildren(frag);
+}
+
 function openBuilder(widget) {
   closeDirPicker();
   closeCmdPicker();
   closeRunDialog();
+  populateCmdDatalist();
   wbControls = [];
   wbParams = [];
   wbFields.replaceChildren();
@@ -842,6 +854,7 @@ on(modalScrim, "click", () => {
   closeRunDialog();
 });
 
+on(widgetAdd, "click", () => openBuilder(null));
 on(wbRead, "click", requestHelp);
 on(wbCmd, "keydown", (e) => {
   if (e.key === "Enter") {

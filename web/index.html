@@ -7,11 +7,11 @@
       content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
     <title>tether</title>
-    <link rel="icon" type="image/svg+xml" href="/icon.svg?v=7" />
-    <link rel="apple-touch-icon" href="/icon.svg?v=7" />
-    <link rel="manifest" href="/manifest.webmanifest?v=7" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg?v=8" />
+    <link rel="apple-touch-icon" href="/icon.svg?v=8" />
+    <link rel="manifest" href="/manifest.webmanifest?v=8" />
     <meta name="theme-color" content="#000600" />
-    <link rel="stylesheet" href="/style.css?v=7" />
+    <link rel="stylesheet" href="/style.css?v=8" />
   </head>
   <body>
     <canvas id="matrix" aria-hidden="true"></canvas>
@@ -90,8 +90,10 @@
               type="text"
               spellcheck="false"
               autocomplete="off"
-              placeholder="command  (e.g. ./deploy.sh)"
+              list="wb-cmd-list"
+              placeholder="command  (start typing -- your commands autocomplete)"
             />
+            <datalist id="wb-cmd-list"></datalist>
             <button id="wb-read" class="send-btn" type="button">Read parameters</button>
           </div>
           <div id="wb-fields" class="wb-fields"></div>
@@ -117,7 +119,10 @@
             <button id="wr-run" class="send-btn" type="button">Run</button>
           </div>
         </div>
-        <div id="widgets" class="widgets"></div>
+        <div class="widgets-bar">
+          <button id="widget-add" class="widget-add" type="button" title="Add a widget">+ Add</button>
+          <div id="widgets" class="widgets"></div>
+        </div>
         <form id="composer" class="composer">
           <button id="attach-btn" class="icon-btn" type="button" aria-label="Attach image">&#128206;</button>
           <button id="mic-btn" class="icon-btn" type="button" aria-label="Voice note">&#127908;</button>
@@ -129,7 +134,7 @@
       </main>
       <div id="modal-scrim" hidden></div>
     </div>
-    <script type="module" src="/matrix.js?v=7"></script>
-    <script type="module" src="/app.js?v=7"></script>
+    <script type="module" src="/matrix.js?v=8"></script>
+    <script type="module" src="/app.js?v=8"></script>
   </body>
 </html>

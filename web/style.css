@@ -469,11 +469,20 @@ textarea:focus {
   padding: 8px 12px;
 }
 
+/* one row: a pinned "+ Add" button, then the widgets that scroll horizontally */
+.widgets-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px 0;
+}
+
 .widgets {
   display: flex;
   gap: 6px;
   overflow-x: auto;
-  padding: 8px 16px 0;
+  flex: 1; /* take the rest of the row */
+  min-width: 0; /* allow it to shrink so the pinned + Add stays put */
 }
 
 .widget {
@@ -519,17 +528,26 @@ textarea:focus {
   color: #f87171;
 }
 
+/* the pinned add button (its own element now, not a .widget pill) */
 .widget-add {
-  border-style: dashed;
-  border-color: var(--border);
-  background: transparent;
-  color: var(--muted);
+  flex: 0 0 auto; /* fixed width, never scrolls away */
+  padding: 6px 12px;
+  border: 1px solid var(--accent);
+  border-radius: 16px;
+  background: rgba(0, 255, 102, 0.12);
+  color: var(--accent-2);
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background 0.13s ease,
+    box-shadow 0.13s ease;
 }
 
 .widget-add:hover {
-  border-color: var(--accent);
-  color: var(--accent-2);
-  box-shadow: none;
+  background: rgba(0, 255, 102, 0.22);
+  box-shadow: 0 0 0 1px rgba(0, 255, 102, 0.4);
 }
 
 .widget .we {
