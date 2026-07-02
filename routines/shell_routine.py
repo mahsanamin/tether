@@ -43,7 +43,9 @@ def list_commands() -> list[str]:
             [
                 "/bin/zsh",
                 "-ic",
-                "print -rl -- ${(k)commands} ${(k)functions} ${(k)aliases}",
+                # rehash first: zsh's command hash can predate PATH dirs added late
+                # in .zshrc (e.g. project_scripts), which would otherwise be missing.
+                "rehash; print -rl -- ${(k)commands} ${(k)functions} ${(k)aliases}",
             ],
             capture_output=True,
             text=True,
