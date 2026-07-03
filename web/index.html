@@ -7,11 +7,12 @@
       content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
     <title>tether</title>
-    <link rel="icon" type="image/svg+xml" href="/icon.svg?v=10" />
-    <link rel="apple-touch-icon" href="/icon.svg?v=10" />
-    <link rel="manifest" href="/manifest.webmanifest?v=10" />
+    <meta name="app-version" content="11" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg?v=11" />
+    <link rel="apple-touch-icon" href="/icon.svg?v=11" />
+    <link rel="manifest" href="/manifest.webmanifest?v=11" />
     <meta name="theme-color" content="#060a08" />
-    <link rel="stylesheet" href="/style.css?v=10" />
+    <link rel="stylesheet" href="/style.css?v=11" />
   </head>
   <body>
     <canvas id="matrix" aria-hidden="true"></canvas>
@@ -32,6 +33,7 @@
         <header class="topbar">
           <button id="menu-btn" class="icon-btn" type="button" aria-label="Chats">&#9776;</button>
           <span id="session-title" class="brand">tether</span>
+          <button id="reload-btn" class="icon-btn" type="button" aria-label="Reload app" title="Reload">&#8635;</button>
           <span id="status-dot" class="status-dot" title="connection"></span>
         </header>
         <div id="messages" class="messages"></div>
@@ -134,7 +136,7 @@
       </main>
       <div id="modal-scrim" hidden></div>
     </div>
-    <script type="module" src="/matrix.js?v=10"></script>
-    <script type="module" src="/app.js?v=10"></script>
+    <script type="module" src="/matrix.js?v=11"></script>
+    <script type="module" src="/app.js?v=11"></script>
   </body>
 </html>

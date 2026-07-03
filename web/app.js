@@ -10,6 +10,7 @@ const sessionListEl = document.getElementById("session-list");
 const sessionTitleEl = document.getElementById("session-title");
 const searchEl = document.getElementById("session-search");
 const statusDot = document.getElementById("status-dot");
+const reloadBtn = document.getElementById("reload-btn");
 const fileInput = document.getElementById("file-input");
 const attachBtn = document.getElementById("attach-btn");
 const micBtn = document.getElementById("mic-btn");
@@ -1231,6 +1232,36 @@ function connect() {
 }
 
 connect();
+
+// ---------- reload / self-update (for the installed PWA, which has no browser
+// chrome and so no pull-to-refresh) ----------
+// Manual: a reload button in the top bar.
+on(reloadBtn, "click", () => location.reload());
+
+// Automatic: when the app is brought back to the foreground, check whether the
+// server is serving a newer build than the one running, and if so reload. This
+// is how a home-screen PWA picks up new versions without a manual refresh.
+const BUILD_VERSION = (
+  document.querySelector('meta[name="app-version"]') || {}
+).content || "";
+let checkingVersion = false;
+async function checkForUpdate() {
+  if (checkingVersion || !BUILD_VERSION) return;
+  checkingVersion = true;
+  try {
+    const res = await fetch("/", { cache: "no-store" });
+    const html = await res.text();
+    const m = html.match(/name="app-version"\s+content="([^"]+)"/);
+    if (m && m[1] && m[1] !== BUILD_VERSION) location.reload();
+  } catch (_) {
+    // offline or server bouncing: ignore, try again next time we're shown
+  } finally {
+    checkingVersion = false;
+  }
+}
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) checkForUpdate();
+});
 
 // No service worker. /sw.js is now a one-time kill switch that removes any worker
 // a previous version registered; we never register one here, so assets are always

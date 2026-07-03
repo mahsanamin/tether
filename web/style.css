@@ -319,6 +319,12 @@ textarea:focus {
   display: none;
 }
 
+/* reload button lives at the right of the top bar, before the status dot */
+#reload-btn {
+  margin-left: auto;
+  font-size: 17px;
+}
+
 .status-dot {
   width: 8px;
   height: 8px;
