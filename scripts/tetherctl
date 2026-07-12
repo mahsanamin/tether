@@ -1,0 +1,156 @@
+#!/usr/bin/env bash
+# tetherctl: one command to start, stop, restart, inspect, and tail the tether
+# launchd agents (the server and the shell routine). It is a thin wrapper around
+# launchctl, so it never thinks or acts on messages: it only manages the two OS
+# services that deploy/install.sh sets up. Nothing here touches tether's message
+# store or interprets intent.
+#
+# Usage:  scripts/tetherctl <command> [target]
+# Tip:    symlink it onto your PATH so you can just type `tetherctl`:
+#           ln -s "$(pwd)/scripts/tetherctl" /usr/local/bin/tetherctl
+set -euo pipefail
+
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+LA="$HOME/Library/LaunchAgents"
+UID_="$(id -u)"
+
+SERVER_LABEL="com.tether.server"
+ROUTINE_LABEL="com.tether.routine"
+
+# Health port: read it from config.yaml if present, else the documented default.
+# The `|| true` keeps a missing config.yaml from tripping `set -e`/pipefail.
+PORT="$({ sed -n 's/^[[:space:]]*port:[[:space:]]*\([0-9]\{1,\}\).*/\1/p' \
+  "$REPO/config.yaml" 2>/dev/null || true; } | head -1)"
+[ -z "${PORT:-}" ] && PORT=4444
+
+# Map a friendly target (server|routine|all) to launchd labels.
+labels_for() {
+  case "${1:-all}" in
+    server) echo "$SERVER_LABEL" ;;
+    routine) echo "$ROUTINE_LABEL" ;;
+    all | "") echo "$SERVER_LABEL $ROUTINE_LABEL" ;;
+    *)
+      echo "unknown target '$1' (use: server | routine | all)" >&2
+      exit 2
+      ;;
+  esac
+}
+
+# Guard: the agents must be installed before start/stop/restart make sense.
+require_installed() {
+  if [ ! -f "$LA/$SERVER_LABEL.plist" ]; then
+    echo "Agents not installed yet. Run:  bash deploy/install.sh" >&2
+    exit 1
+  fi
+}
+
+cmd_start() {
+  require_installed
+  for l in $(labels_for "${1:-all}"); do
+    launchctl load "$LA/$l.plist" 2>/dev/null || true
+    echo "started $l"
+  done
+}
+
+cmd_stop() {
+  require_installed
+  for l in $(labels_for "${1:-all}"); do
+    launchctl unload "$LA/$l.plist" 2>/dev/null || true
+    echo "stopped $l"
+  done
+}
+
+# Restart a running agent in place (fast; picks up new backend code). kickstart
+# -k bounces the job without unload/load. Use `reload` instead when you changed
+# the plist itself, your PATH, or added a command directory.
+cmd_restart() {
+  require_installed
+  for l in $(labels_for "${1:-all}"); do
+    launchctl kickstart -k "gui/$UID_/$l"
+    echo "restarted $l"
+  done
+}
+
+# Full reload: re-render the plists from the templates and reload both agents.
+# This is deploy/install.sh, which also refreshes the PATH the agents run with.
+cmd_reload() {
+  bash "$REPO/deploy/install.sh"
+}
+
+cmd_status() {
+  echo "== launchd agents =="
+  launchctl list | grep -i tether || echo "(no tether agents loaded)"
+  echo "== health (:$PORT) =="
+  curl -fsS -m 4 "http://127.0.0.1:$PORT/health" && echo ||
+    echo "(server not answering; try: tetherctl logs server)"
+}
+
+cmd_health() {
+  curl -fsS -m 4 "http://127.0.0.1:$PORT/health" && echo
+}
+
+# Tail one agent's stdout+stderr logs. Pass -f (default) to follow, or a target.
+cmd_logs() {
+  local target="server" follow="-f"
+  for a in "$@"; do
+    case "$a" in
+      server | routine) target="$a" ;;
+      -f) follow="-f" ;;
+      --no-follow) follow="" ;;
+    esac
+  done
+  local base="$REPO/tether"
+  [ "$target" = "routine" ] && base="$REPO/routine"
+  echo "== $target logs ($base.{out,err}.log) =="
+  # shellcheck disable=SC2086
+  tail -n 40 $follow "$base.out.log" "$base.err.log"
+}
+
+usage() {
+  cat <<EOF
+tetherctl: manage the tether launchd agents (server + routine)
+
+Usage: tetherctl <command> [target]
+  target is one of: server | routine | all   (default: all)
+
+Commands:
+  start [target]      Load and start the agent(s)
+  stop [target]       Unload and stop the agent(s)
+  restart [target]    Bounce running agent(s) in place (picks up new code)
+  reload              Re-render plists + reload both (deploy/install.sh; use
+                      after plist/PATH/command-dir changes)
+  status              Show loaded agents and server health
+  health              Curl the /health endpoint
+  logs [server|routine] [--no-follow]
+                      Tail an agent's out/err logs (follows by default)
+  help, --help        Show this help
+
+Notes:
+  - Frontend edits (web/) need NO restart: reload the client (bump ?v=).
+  - Backend edits (server/*.py) need:  tetherctl restart server
+  - Plist / PATH / new command dir:    tetherctl reload
+EOF
+}
+
+main() {
+  local cmd="${1:-help}"
+  shift || true
+  case "$cmd" in
+    start) cmd_start "$@" ;;
+    stop) cmd_stop "$@" ;;
+    restart) cmd_restart "$@" ;;
+    reload) cmd_reload "$@" ;;
+    status) cmd_status "$@" ;;
+    health) cmd_health "$@" ;;
+    logs) cmd_logs "$@" ;;
+    help | --help | -h) usage ;;
+    *)
+      echo "unknown command '$cmd'" >&2
+      echo >&2
+      usage >&2
+      exit 2
+      ;;
+  esac
+}
+
+main "$@"

@@ -144,6 +144,19 @@ bash deploy/uninstall.sh   # remove it
 `install.sh` figures out your paths automatically, so there is nothing personal to
 edit by hand.
 
+Once installed, `scripts/tetherctl` is your day-to-day control:
+
+```bash
+scripts/tetherctl status            # what is loaded + server health
+scripts/tetherctl restart server    # after a backend (server/*.py) change
+scripts/tetherctl reload            # after a plist/PATH/command-dir change
+scripts/tetherctl logs server       # tail the logs
+scripts/tetherctl --help            # everything else (start, stop, routine, ...)
+```
+
+Frontend edits under `web/` need no restart at all: just reload the client (the
+`?v=` bump in `index.html` busts the cache).
+
 ## A tiny glossary
 
 - **Claude** — the AI assistant that does the actual work on your computer.
