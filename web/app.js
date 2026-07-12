@@ -331,6 +331,13 @@ on(micBtn, "click", async () => {
 });
 
 // ---------- send ----------
+// Grow the message box to fit its content (up to the CSS max-height, then it
+// scrolls). Reset to auto first so it can also shrink as text is deleted.
+function autogrow() {
+  input.style.height = "auto";
+  input.style.height = input.scrollHeight + "px";
+}
+
 on(form, "submit", (e) => {
   e.preventDefault();
   const text = input.value.trim();
@@ -344,9 +351,19 @@ on(form, "submit", (e) => {
     }),
   );
   input.value = "";
+  autogrow();
   pendingAttachments = [];
   if (window.Notification && Notification.permission === "default") {
     Notification.requestPermission();
+  }
+});
+
+// Enter sends; Shift+Enter (or Ctrl/Cmd+Enter) inserts a newline. Without this
+// a textarea would just add a line on Enter, so long messages could never send.
+on(input, "keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey && !e.ctrlKey && !e.metaKey && !e.isComposing) {
+    e.preventDefault();
+    form.requestSubmit();
   }
 });
 
@@ -1092,12 +1109,14 @@ function insertCurrentDir() {
   input.value = input.value.replace(/\/d\s*$/i, path + " ");
   closeDirPicker();
   input.focus();
+  autogrow();
 }
 
 on(dirClose, "click", closeDirPicker);
 on(dirInsert, "click", insertCurrentDir);
 
 on(input, "input", () => {
+  autogrow();
   if (/(^|\s)\/d$/i.test(input.value)) openDirPicker();
   else if (/(^|\s)\/c$/i.test(input.value)) openCmdPicker();
 });
@@ -1134,6 +1153,7 @@ function insertCurrentCmd() {
   input.value = input.value.replace(/\/c\s*$/i, "$ " + cmd + " ");
   closeCmdPicker();
   input.focus();
+  autogrow();
 }
 
 function closeCmdPicker() {

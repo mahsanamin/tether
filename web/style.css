@@ -812,14 +812,14 @@ textarea:focus {
 /* ---------- composer ---------- */
 .composer {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: var(--sp-2);
   padding: var(--sp-3) var(--sp-4);
   padding-bottom: max(var(--sp-3), env(safe-area-inset-bottom));
   border-top: 1px solid var(--border);
 }
 
-.composer input[type="text"] {
+.composer #command {
   flex: 1;
   padding: 10px var(--sp-3);
   border: 1px solid var(--border);
@@ -828,9 +828,15 @@ textarea:focus {
   color: var(--text);
   font: inherit;
   font-size: 14.5px;
+  /* auto-growing message box: starts one line, grows with content up to a
+     cap, then scrolls. JS sets the height; these keep it clean. */
+  line-height: 1.4;
+  resize: none;
+  overflow-y: auto;
+  max-height: 40vh;
 }
 
-.composer input[type="text"]::placeholder {
+.composer #command::placeholder {
   color: var(--muted);
 }
 
