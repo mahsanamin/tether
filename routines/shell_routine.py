@@ -22,6 +22,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import os
+import re
 import select
 import subprocess
 import threading
@@ -30,7 +31,25 @@ import time
 from cli.tether_connect import DEFAULT_URL, done, fail, next_task, reply
 
 MAX_OUTPUT = 4000
-GRACE_S = 10  # wait this long for output before treating it as a background session
+# How long to keep capturing a command's output before treating it as a
+# background session. Longer = the chat shows more of what a launch actually did
+# (repo resolved, worktree made, tab opened) before it detaches. Env-tunable.
+GRACE_S = int(os.environ.get("TETHER_GRACE_S", "20"))
+
+# Strip ANSI/VT escapes and stray control bytes so captured terminal output reads
+# as clean text in the chat instead of a mess of color codes and cursor moves.
+# tether never interprets this; the routine just tidies the raw bytes it relays.
+_ANSI_RE = re.compile(
+    r"\x1b\[[0-9;?]*[ -/]*[@-~]"  # CSI ... sequences (colors, cursor moves)
+    r"|\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)"  # OSC ... (window titles etc.)
+    r"|\x1b[@-Z\\-_]"  # two-char escapes
+    r"|[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]"  # other control bytes (keep \t \n \r)
+)
+
+
+def _clean(text: str) -> str:
+    """Remove terminal escapes and normalize carriage returns for chat display."""
+    return _ANSI_RE.sub("", text).replace("\r\n", "\n").replace("\r", "\n")
 
 
 def list_commands() -> list[str]:
@@ -164,17 +183,24 @@ async def run_one(url: str, task: dict, prefix: str) -> None:
         return
 
     if result["detached"]:
-        out = (result.get("output") or "").strip()
-        tail = ("\n```\n" + out[:MAX_OUTPUT] + "\n```") if out else ""
+        out = _clean(result.get("output") or "").strip()
+        # Show the LATEST output (the newest stage a launch reached), not the head.
+        if len(out) > MAX_OUTPUT:
+            out = "... (earlier output trimmed)\n" + out[-MAX_OUTPUT:]
+        body = ("\n```\n" + out + "\n```") if out else ""
+        note = (
+            "\n\n_Note: this is the setup output. If it launched Claude in a zellij "
+            "tab, that session keeps running there / in the Claude app; its own work "
+            "does not stream back here._"
+        )
         await reply(
             url,
             task_id,
-            f"running with a terminal in the background (pid {result['pid']}). "
-            "Interactive / remote-control sessions stay "
-            "open; drive them from the Claude app." + tail,
+            f"Still running in the background (pid {result['pid']}) after {GRACE_S}s. "
+            "Here is what it printed so far:" + body + note,
         )
     else:
-        out = (result.get("output") or "").strip()
+        out = _clean(result.get("output") or "").strip()
         out = out or f"(no output, exit code {result['code']})"
         if len(out) > MAX_OUTPUT:
             out = out[:MAX_OUTPUT] + "\n... (truncated)"
